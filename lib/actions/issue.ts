@@ -13,6 +13,9 @@ export async function createIssue(data: {
     priority: string;
     type: string;
     status: string;
+    startDate?: Date;
+    endDate?: Date;
+    originalEstimate?: number;
 }) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -27,7 +30,9 @@ export async function createIssue(data: {
 
     const issue = await Issue.create({
         ...data,
+        remainingEstimate: data.originalEstimate || 0,
         reporterId: session.user.id,
+        assigneeId: session.user.id,
         order,
     });
 
@@ -113,4 +118,21 @@ export async function deleteIssue(issueId: string) {
     await Issue.deleteOne({ _id: issueId });
 
     revalidatePath(`/projects/${issue.projectId}`);
+}
+
+export async function getAssignedIssues() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return [];
+
+    await connectToDatabase();
+    // Fetch issues assigned to the user or where the user is the reporter? User said "assigned task".
+    // Let's stick to Assignee. If assigneeId is missing in schema, we might fallback to reporter for now or update schema.
+    // The current schema has assigneeId.
+    const issues = await Issue.find({
+        $or: [
+            { assigneeId: session.user.id },
+            { reporterId: session.user.id }
+        ]
+    }).sort({ startDate: 1 });
+    return JSON.parse(JSON.stringify(issues));
 }

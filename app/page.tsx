@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900">
       <header className="px-4 lg:px-6 h-14 flex items-center border-b bg-white dark:bg-slate-950">
-        <span className="font-bold text-lg">Jira Lite</span>
+        <span className="font-bold text-lg">Hira Lite</span>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4 flex items-center">
             Sign In
@@ -42,7 +42,7 @@ export default async function Home() {
         </div>
       </main>
       <footer className="py-6 w-full shrink-0 items-center px-4 md:px-6 border-t text-center text-sm text-gray-500">
-        © 2024 Jira Lite. Built with Next.js & MongoDB.
+        © 2024 Hira Lite. Built with Next.js & MongoDB.
       </footer>
     </div>
   );

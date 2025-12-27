@@ -3,13 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Briefcase } from "lucide-react";
+import Image from "next/image";
 
 const routes = [
     {
         label: "Projects",
         icon: LayoutDashboard,
         href: "/projects",
+    },
+    {
+        label: "My Workspace",
+        icon: Briefcase,
+        href: "/workspace",
     },
 ];
 
@@ -20,7 +26,15 @@ export function Sidebar() {
         <div className="space-y-4 py-4 flex flex-col h-full bg-slate-900 text-white w-full dark:bg-slate-950 border-r border-slate-800">
             <div className="px-3 py-2">
                 <Link href="/projects" className="flex items-center pl-3 mb-14">
-                    <h1 className="text-2xl font-bold">Jira Lite</h1>
+                    <div className="relative w-32 h-10">
+                        <Image
+                            src="/HiraNew.png"
+                            alt="Hira Logo"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
+                    </div>
                 </Link>
                 <div className="space-y-1">
                     {routes.map((route) => (

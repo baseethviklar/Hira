@@ -56,7 +56,7 @@ export default function RegisterPage() {
         <Card className="w-full max-w-md">
             <CardHeader>
                 <CardTitle>Create an account</CardTitle>
-                <CardDescription>Get started with Jira-lite</CardDescription>
+                <CardDescription>Get started with Hira-lite</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>

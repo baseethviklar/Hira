@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogFooter
 } from "@/components/ui/dialog";
 import {
     Form,
@@ -24,18 +23,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createProject } from "@/lib/actions/project";
+import { createSpace } from "@/lib/actions/space";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { FolderPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-    name: z.string().min(2),
-    key: z.string().min(2).max(10),
+    name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
 });
 
-export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
+export function CreateSpaceDialog() {
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -44,7 +42,6 @@ export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            key: "",
             description: "",
         },
     });
@@ -52,13 +49,13 @@ export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
-            await createProject({ ...values, spaceId });
-            toast.success("Project created successfully");
+            await createSpace(values);
+            toast.success("Space created");
             setOpen(false);
             form.reset();
             router.refresh();
         } catch (error) {
-            toast.error("Failed to create project");
+            toast.error("Failed to create space");
         } finally {
             setIsLoading(false);
         }
@@ -68,15 +65,12 @@ export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Create Project
+                    <FolderPlus className="mr-2 h-4 w-4" /> Create Space
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Create Project</DialogTitle>
-                    <DialogDescription>
-                        Create a new project to start tracking your work.
-                    </DialogDescription>
+                    <DialogTitle>Create Space</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -87,20 +81,7 @@ export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="My Awesome Project" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="key"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Key</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="MAP" {...field} className="uppercase" onChange={e => field.onChange(e.target.value.toUpperCase())} />
+                                        <Input placeholder="Engineering, Marketing, etc." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -113,7 +94,7 @@ export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
                                 <FormItem>
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Project description..." {...field} />
+                                        <Textarea placeholder="Space description..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -121,7 +102,7 @@ export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
                         />
                         <DialogFooter>
                             <Button type="submit" disabled={isLoading}>
-                                {isLoading ? "Creating..." : "Create Project"}
+                                {isLoading ? "Creating..." : "Create Space"}
                             </Button>
                         </DialogFooter>
                     </form>

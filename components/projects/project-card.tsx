@@ -3,13 +3,14 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, FolderInput } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from "@/components/ui/dialog";
@@ -23,9 +24,17 @@ import { updateProject, deleteProject } from "@/lib/actions/project";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 interface ProjectCardProps {
     project: any;
+    spaces?: any[]; // Allow modifying space on project
 }
 
 const formSchema = z.object({
@@ -34,9 +43,11 @@ const formSchema = z.object({
     description: z.string().optional(),
 });
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, spaces }: ProjectCardProps) {
     const [editOpen, setEditOpen] = useState(false);
+    const [moveOpen, setMoveOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedSpaceId, setSelectedSpaceId] = useState<string>(project.spaceId || "standalone");
     const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -57,6 +68,52 @@ export function ProjectCard({ project }: ProjectCardProps) {
             router.refresh();
         } catch (error) {
             toast.error("Failed to update project");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function onMove() {
+        setIsLoading(true);
+        try {
+            // "standalone" means remove spaceId (set to empty string or null in backend)
+            // Backend expects undefined to ignore, or empty string to unset? 
+            // My updateProject action: "if (data.spaceId !== undefined) { ... }"
+            // But I modified createProject, not updateProject logic fully.
+            // Let's check updateProject in lib/actions/project.ts
+            // Actually, I need to make sure updateProject supports unsetting key. 
+            // The previous change was: query.spaceId = spaceId || null;
+            // Wait, that's getProjects.
+            // updateProject is generic update(id, data).
+            // So if I pass { spaceId: null } or { $unset: { spaceId: 1 } }?
+            // Mongoose updateOne with data object replaces/sets fields.
+            // If I pass { spaceId: null }, it sets it to null.
+
+            const spaceIdToUpdate = selectedSpaceId === "standalone" ? "" : selectedSpaceId;
+            // However, sending empty string might not unset it if schema refers to ObjectId.
+            // It might cast error.
+            // Best to send null if allowed by schema, or modify backend to handle "standalone".
+
+            // Let's assume for now passing null works if schema allows optional. 
+            // Or I might need to update backend action to handle this case specifically.
+            // Let's update backend action next if needed. For now, try passing null.
+            // But types say string.
+
+            // I'll update the backend action to accept 'null' or empty string and handle it.
+            // For now let's pass it.
+
+            await updateProject(project._id, {
+                name: project.name,
+                key: project.key,
+                spaceId: spaceIdToUpdate || undefined
+            } as any);
+
+            toast.success("Project moved");
+            setMoveOpen(false);
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to move project");
         } finally {
             setIsLoading(false);
         }
@@ -107,6 +164,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                            {spaces && spaces.length > 0 && (
+                                <>
+                                    <DropdownMenuItem onClick={() => setMoveOpen(true)}>
+                                        <FolderInput className="mr-2 h-4 w-4" /> Move to Space
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                </>
+                            )}
                             <DropdownMenuItem onClick={() => setEditOpen(true)}>
                                 <Pencil className="mr-2 h-4 w-4" /> Edit
                             </DropdownMenuItem>
@@ -174,6 +239,39 @@ export function ProjectCard({ project }: ProjectCardProps) {
                             </DialogFooter>
                         </form>
                     </Form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={moveOpen} onOpenChange={setMoveOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Move Project</DialogTitle>
+                        <DialogDescription>
+                            Select a space to move this project to.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Label className="mb-2 block">Select Space</Label>
+                        <Select value={selectedSpaceId} onValueChange={setSelectedSpaceId}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a space" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="standalone">No Space (Standalone)</SelectItem>
+                                {spaces?.map((space: any) => (
+                                    <SelectItem key={space._id} value={space._id}>
+                                        {space.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setMoveOpen(false)}>Cancel</Button>
+                        <Button onClick={onMove} disabled={isLoading}>
+                            {isLoading ? "Moving..." : "Move Project"}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </>

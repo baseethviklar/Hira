@@ -26,10 +26,16 @@ import { logWork } from "@/lib/actions/time-tracking";
 import { toast } from "sonner";
 import { useState } from "react";
 import { parseDuration } from "@/lib/format-time";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 const formSchema = z.object({
     timeSpent: z.string().min(1, "Time spent is required (e.g. 1h 30m)"),
     description: z.string().optional(),
+    date: z.date(),
 });
 
 interface LogWorkDialogProps {
@@ -47,6 +53,7 @@ export function LogWorkDialog({ issueId, open, onOpenChange, onSuccess }: LogWor
         defaultValues: {
             timeSpent: "",
             description: "",
+            date: new Date(),
         },
     });
 
@@ -59,9 +66,17 @@ export function LogWorkDialog({ issueId, open, onOpenChange, onSuccess }: LogWor
                 return;
             }
 
-            await logWork(issueId, { timeSpent: minutes, description: values.description });
+            await logWork(issueId, {
+                timeSpent: minutes,
+                description: values.description,
+                date: values.date
+            });
             toast.success("Work logged successfully");
-            form.reset();
+            form.reset({
+                timeSpent: "",
+                description: "",
+                date: new Date()
+            });
             onOpenChange(false);
             onSuccess?.();
         } catch (error) {
@@ -88,6 +103,47 @@ export function LogWorkDialog({ issueId, open, onOpenChange, onSuccess }: LogWor
                                     <FormControl>
                                         <Input placeholder="e.g. 2h 30m or 90m" {...field} />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="date"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Log work for</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP")
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                disabled={(date) =>
+                                                    date > new Date() || date < new Date("1900-01-01")
+                                                }
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                     <FormMessage />
                                 </FormItem>
                             )}

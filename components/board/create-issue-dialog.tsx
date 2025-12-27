@@ -57,9 +57,11 @@ const formSchema = z.object({
 interface CreateIssueDialogProps {
     projectId: string;
     statuses: { id: string; label: string }[];
+    defaultStatus?: string;
+    trigger?: React.ReactNode;
 }
 
-export function CreateIssueDialog({ projectId, statuses }: CreateIssueDialogProps) {
+export function CreateIssueDialog({ projectId, statuses, defaultStatus, trigger }: CreateIssueDialogProps) {
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -71,10 +73,16 @@ export function CreateIssueDialog({ projectId, statuses }: CreateIssueDialogProp
             description: "",
             priority: "MEDIUM",
             type: "TASK",
-            status: statuses[0]?.id || "TODO",
+            status: defaultStatus || statuses[0]?.id || "TODO",
             originalEstimate: "",
         },
     });
+
+    // Reset default status if it changes (e.g. reused component) - though usually key changes
+    // But react-hook-form defaultValues are cached. We might need a useEffect if we want it dynamic, 
+    // but here the dialog is likely remounted or specific to column. 
+    // Actually, if I open "To Do" dialog, then "Done" dialog, they are different instances if inside BoardColumn.
+    // So defaultValues logic is fine.
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
@@ -100,9 +108,11 @@ export function CreateIssueDialog({ projectId, statuses }: CreateIssueDialogProp
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Create Issue
-                </Button>
+                {trigger ? trigger : (
+                    <Button>
+                        <Plus className="mr-2 h-4 w-4" /> Create Issue
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>

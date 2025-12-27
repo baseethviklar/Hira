@@ -6,12 +6,18 @@ import { BoardCard } from "./board-card";
 import { IIssue } from "@/lib/models/Issue";
 import { cn } from "@/lib/utils";
 
+import { CreateIssueDialog } from "./create-issue-dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+
 interface BoardColumnProps {
     status: { id: string; label: string; color?: string };
     issues: IIssue[];
+    projectId: string;
+    allStatuses: { id: string; label: string }[];
 }
 
-export function BoardColumn({ status, issues }: BoardColumnProps) {
+export function BoardColumn({ status, issues, projectId, allStatuses }: BoardColumnProps) {
     const { setNodeRef } = useDroppable({
         id: status.id,
         data: {
@@ -43,6 +49,19 @@ export function BoardColumn({ status, issues }: BoardColumnProps) {
                     </div>
                 )}
             </div>
-        </div>
+
+            <div className="p-3 pt-0">
+                <CreateIssueDialog
+                    projectId={projectId}
+                    statuses={allStatuses}
+                    defaultStatus={status.id}
+                    trigger={
+                        <Button variant="ghost" className="w-full justify-start hover:bg-slate-200 dark:hover:bg-slate-800">
+                            <Plus className="mr-2 h-4 w-4" /> Create Issue
+                        </Button>
+                    }
+                />
+            </div>
+        </div >
     );
 }

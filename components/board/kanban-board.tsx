@@ -140,12 +140,14 @@ export function KanbanBoard({ project, initialIssues }: KanbanBoardProps) {
             onDragOver={onDragOver}
             onDragEnd={onDragEnd}
         >
-            <div className="flex h-full gap-6 p-4 overflow-x-auto items-start">
+            <div className="flex h-full gap-6 p-4 overflow-x-auto">
                 {project.statuses.map((status) => (
                     <BoardColumn
                         key={status.id}
                         status={status}
                         issues={issues.filter((i) => i.status === status.id)}
+                        projectId={project._id as unknown as string}
+                        allStatuses={project.statuses}
                     />
                 ))}
             </div>

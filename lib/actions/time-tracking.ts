@@ -99,3 +99,38 @@ export async function updateWorklog(issueId: string, worklogId: string, data: { 
     revalidatePath(`/projects/${issue.projectId}`);
     return JSON.parse(JSON.stringify(issue));
 }
+
+export async function deleteWorklog(issueId: string, worklogId: string) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    await connectToDatabase();
+
+    const issue = await Issue.findById(issueId);
+    if (!issue) throw new Error("Issue not found");
+
+    const worklog = issue.worklogs.id(worklogId);
+    if (!worklog) throw new Error("Worklog not found");
+
+    if (worklog.userId.toString() !== session.user.id) {
+        throw new Error("Unauthorized to delete this worklog");
+    }
+
+    const timeSpentToRemove = worklog.timeSpent;
+
+    // Remove worklog
+    issue.worklogs.pull({ _id: worklogId });
+
+    // Update issue totals
+    // Ensure we don't go negative on timeSpent (though unlikely if logic is correct)
+    issue.timeSpent = Math.max(0, (issue.timeSpent || 0) - timeSpentToRemove);
+
+    // Update remaining estimate
+    // If we delete work, we "put back" the remaining time.
+    issue.remainingEstimate = (issue.remainingEstimate || 0) + timeSpentToRemove;
+
+    await issue.save();
+
+    revalidatePath(`/projects/${issue.projectId}`);
+    return JSON.parse(JSON.stringify(issue));
+}

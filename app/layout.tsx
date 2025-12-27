@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hira Clone",
+  title: "Hira",
   description: "Personal Project Management",
 };
 

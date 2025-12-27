@@ -41,7 +41,7 @@ export async function getSpace(id: string) {
     return JSON.parse(JSON.stringify(space));
 }
 
-export async function deleteSpace(spaceId: string) {
+export async function deleteSpace(spaceId: string, deleteProjectsObj?: { deleteProjects: boolean }) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -51,11 +51,13 @@ export async function deleteSpace(spaceId: string) {
     const space = await Space.findOne({ _id: spaceId, owner: session.user.id });
     if (!space) throw new Error("Space not found or unauthorized");
 
-    // Option 1: Delete all projects in space? 
-    // Option 2: Move projects to root?
-    // Let's go with Option 1 for now or just unset spaceId. 
-    // Safest: Unset spaceId so projects become standalone.
-    await Project.updateMany({ spaceId }, { $unset: { spaceId: "" } });
+    if (deleteProjectsObj?.deleteProjects) {
+        // Option 1: Delete all projects in space
+        await Project.deleteMany({ spaceId });
+    } else {
+        // Option 2: Move projects to root (Standalone)
+        await Project.updateMany({ spaceId }, { $unset: { spaceId: "" } });
+    }
 
     await Space.deleteOne({ _id: spaceId });
     revalidatePath("/projects");

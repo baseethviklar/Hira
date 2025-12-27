@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Briefcase, LogOut } from "lucide-react";
+import { LayoutDashboard, Briefcase, LogOut, Home } from "lucide-react";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 
 const routes = [
     {
-        label: "Projects",
-        icon: LayoutDashboard,
+        label: "Home",
+        icon: Home,
         href: "/projects",
     },
     {

@@ -14,6 +14,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +56,7 @@ const formSchema = z.object({
 export function ProjectCard({ project, spaces }: ProjectCardProps) {
     const [editOpen, setEditOpen] = useState(false);
     const [moveOpen, setMoveOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedSpaceId, setSelectedSpaceId] = useState<string>(project.spaceId || "standalone");
     const router = useRouter();
@@ -120,8 +131,6 @@ export function ProjectCard({ project, spaces }: ProjectCardProps) {
     }
 
     async function onDelete() {
-        if (!confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
-
         setIsLoading(true);
         try {
             await deleteProject(project._id);
@@ -175,7 +184,7 @@ export function ProjectCard({ project, spaces }: ProjectCardProps) {
                             <DropdownMenuItem onClick={() => setEditOpen(true)}>
                                 <Pencil className="mr-2 h-4 w-4" /> Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                            <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-destructive">
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -274,6 +283,24 @@ export function ProjectCard({ project, spaces }: ProjectCardProps) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the project
+                            "{project.name}" and all of its associated issues.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={onDelete} className="bg-red-600 hover:bg-red-700">
+                            {isLoading ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

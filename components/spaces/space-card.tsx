@@ -22,26 +22,39 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea"; // Assuming Textarea exists
 import { Label } from "@/components/ui/label"; // Assuming Label exists or use Form
 
 interface SpaceCardProps {
     space: any;
+    projectCount?: number;
 }
 
-export function SpaceCard({ space }: SpaceCardProps) {
+export function SpaceCard({ space, projectCount = 0 }: SpaceCardProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
     const [name, setName] = useState(space.name);
     const [description, setDescription] = useState(space.description || "");
+    const [deleteProjects, setDeleteProjects] = useState(false); // New state for delete option
 
     async function onDelete() {
-        if (!confirm("Are you sure? All projects inside will become standalone.")) return;
         setIsLoading(true);
         try {
-            await deleteSpace(space._id);
+            await deleteSpace(space._id, { deleteProjects }); // Pass option
             toast.success("Space deleted");
             router.refresh();
         } catch (error) {
@@ -86,7 +99,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
                                     <DropdownMenuItem onClick={() => setEditOpen(true)}>
                                         <Edit className="mr-2 h-4 w-4" /> Edit
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={onDelete} className="text-red-600">
+                                    <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-red-600">
                                         <Trash2 className="mr-2 h-4 w-4" /> Delete
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -124,6 +137,47 @@ export function SpaceCard({ space }: SpaceCardProps) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the space
+                            "{space.name}".
+                        </AlertDialogDescription>
+                        <div className="pt-4 space-y-3 text-sm text-foreground">
+                            {projectCount > 0 && (
+                                <RadioGroup defaultValue="keep" onValueChange={(val) => setDeleteProjects(val === "delete")}>
+                                    <div className="flex items-start space-x-2">
+                                        <RadioGroupItem value="keep" id="keep" className="mt-1" />
+                                        <Label htmlFor="keep" className="grid gap-1.5 leading-none cursor-pointer">
+                                            <span className="font-medium">Keep {projectCount} project{projectCount > 1 ? 's' : ''} as standalone</span>
+                                            <span className="text-muted-foreground text-xs">Projects will be moved to the main dashboard.</span>
+                                        </Label>
+                                    </div>
+                                    <div className="flex items-start space-x-2">
+                                        <RadioGroupItem value="delete" id="delete" className="mt-1" />
+                                        <Label htmlFor="delete" className="grid gap-1.5 leading-none cursor-pointer">
+                                            <span className="font-medium text-destructive">Delete all projects</span>
+                                            <span className="text-muted-foreground text-xs">Projects and their issues will be permanently deleted.</span>
+                                        </Label>
+                                    </div>
+                                </RadioGroup>
+                            )}
+                            {projectCount === 0 && (
+                                <p className="text-muted-foreground italic">This space is empty.</p>
+                            )}
+                        </div>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={onDelete} className="bg-red-600 hover:bg-red-700">
+                            {isLoading ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

@@ -14,6 +14,17 @@ import {
     DialogClose,
 } from "@/components/ui/dialog";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
     Form,
     FormControl,
     FormField,
@@ -97,8 +108,7 @@ export function EditIssueDialog({ issue, open, onOpenChange }: EditIssueDialogPr
     }
 
     async function onDelete() {
-        if (!confirm("Are you sure you want to delete this issue?")) return;
-
+        // Confirm handled by AlertDialog
         setIsLoading(true);
         try {
             await deleteIssue(issue._id as unknown as string);
@@ -323,9 +333,26 @@ export function EditIssueDialog({ issue, open, onOpenChange }: EditIssueDialogPr
                             </div>
 
                             <DialogFooter className="flex justify-between sm:justify-between pt-4">
-                                <Button type="button" variant="destructive" size="icon" onClick={onDelete} disabled={isLoading}>
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button" variant="destructive" size="icon" disabled={isLoading}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete the issue
+                                                and remove it from our servers.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={onDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                                 <div className="flex gap-2">
                                     <DialogClose asChild>
                                         <Button type="button" variant="secondary">Cancel</Button>

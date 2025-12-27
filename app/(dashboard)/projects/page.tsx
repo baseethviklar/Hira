@@ -33,9 +33,12 @@ export default async function ProjectsPage() {
                         Your Spaces
                     </h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {spaces.map((space: any) => (
-                            <SpaceCard key={space._id} space={space} />
-                        ))}
+                        {spaces.map((space: any) => {
+                            const projectCount = projects.filter((p: any) => p.spaceId === space._id).length;
+                            return (
+                                <SpaceCard key={space._id} space={space} projectCount={projectCount} />
+                            );
+                        })}
                     </div>
                     <Separator className="my-6" />
                 </div>

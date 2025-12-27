@@ -107,10 +107,9 @@ export async function updateIssueDetails(issueId: string, data: {
 
     if (data.originalEstimate !== undefined && data.originalEstimate !== issue.originalEstimate) {
         issue.originalEstimate = data.originalEstimate;
-        // Optionally update remaining estimate if no work logged? 
-        // Or just let user manage it via log work. 
-        // User requested "edit original estimate". 
-        // Let's just update original. Simpler.
+        // Recalculate remaining estimate based on new original and existing timeSpent
+        const spent = issue.timeSpent || 0;
+        issue.remainingEstimate = Math.max(0, (data.originalEstimate || 0) - spent);
     }
 
     await issue.save();

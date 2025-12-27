@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkspaceCalendar } from "@/components/workspace/workspace-calendar";
 import { IIssue } from "@/lib/models/Issue";
+import { WorklogItem } from "@/components/workspace/worklog-item";
 
 export default async function MyWorkspacePage() {
     const [worklogs, assignedIssues] = await Promise.all([
@@ -66,19 +67,7 @@ export default async function MyWorkspacePage() {
                                 <CardContent className="px-4 pb-4">
                                     <div className="space-y-3">
                                         {groupedWorklogs[dateKey].map((log) => (
-                                            <div key={log._id as string} className="flex items-center justify-between text-sm">
-                                                <div className="grid gap-1">
-                                                    <Link href={`/projects/${log.issueProjectId}`} className="font-medium hover:underline text-primary truncate max-w-[300px]">
-                                                        {log.issueTitle}
-                                                    </Link>
-                                                    <p className="text-muted-foreground line-clamp-1">
-                                                        {log.description || "No description"}
-                                                    </p>
-                                                </div>
-                                                <div className="font-mono font-medium text-xs bg-muted px-2 py-1 rounded">
-                                                    {formatDuration(log.timeSpent)}
-                                                </div>
-                                            </div>
+                                            <WorklogItem key={log._id as string} log={log} />
                                         ))}
                                     </div>
                                     <div className="mt-3 pt-3 border-t flex justify-end">

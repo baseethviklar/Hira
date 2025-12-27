@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Briefcase } from "lucide-react";
+import { LayoutDashboard, Briefcase, LogOut } from "lucide-react";
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 
 const routes = [
     {
@@ -24,7 +25,7 @@ export function Sidebar() {
 
     return (
         <div className="space-y-4 py-4 flex flex-col h-full bg-slate-900 text-white w-full dark:bg-slate-950 border-r border-slate-800">
-            <div className="px-3 py-2">
+            <div className="px-3 py-2 flex-1">
                 <Link href="/projects" className="flex items-center pl-3 mb-14">
                     <div className="relative w-32 h-10">
                         <Image
@@ -52,6 +53,19 @@ export function Sidebar() {
                             </div>
                         </Link>
                     ))}
+                </div>
+            </div>
+            <div className="px-3 py-2">
+                <div
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className={cn(
+                        "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition text-zinc-400"
+                    )}
+                >
+                    <div className="flex items-center flex-1">
+                        <LogOut className="h-5 w-5 mr-3" />
+                        Log out
+                    </div>
                 </div>
             </div>
         </div>

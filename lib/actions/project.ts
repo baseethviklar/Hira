@@ -50,6 +50,15 @@ export async function getProject(id: string) {
     return JSON.parse(JSON.stringify(project));
 }
 
+export async function updateProject(id: string, data: { name: string; key: string; description?: string }) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    await connectToDatabase();
+    await Project.updateOne({ _id: id, owner: session.user.id }, data);
+    revalidatePath("/projects");
+}
+
 export async function deleteProject(id: string) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) throw new Error("Unauthorized");

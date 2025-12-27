@@ -94,16 +94,17 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async signIn({ user, account, profile }) {
+            console.log("DEBUG: signIn callback", { email: user.email, provider: account?.provider });
             if (account?.provider === "google") {
                 await connectToDatabase();
                 try {
                     const existingUser = await User.findOne({ email: user.email });
                     if (!existingUser) {
+                        console.log("DEBUG: Creating new user from Google login");
                         await User.create({
                             name: user.name,
                             email: user.email,
                             image: user.image,
-                            // Password is optional in schema, so this is fine
                         });
                     }
                     return true;
@@ -115,20 +116,22 @@ export const authOptions: NextAuthOptions = {
             return true;
         },
         async session({ session, token }) {
+            console.log("DEBUG: session callback", { tokenSub: token?.sub, hasUser: !!session.user });
             if (token && session.user) {
                 session.user.id = token.sub as string;
             }
             return session;
         },
         async jwt({ token, user, account }) {
+            console.log("DEBUG: jwt callback start", {
+                hasUser: !!user,
+                hasAccount: !!account,
+                tokenSub: token.sub
+            });
+
             if (user) {
                 token.sub = user.id;
             }
-            // If it's a google login, we might want to ensure we have the ID from DB if we just created it?
-            // "user" object in jwt callback comes from the provider or the authorize function.
-            // For Google, "user" is the object returned by the profile callback (normalized).
-            // But we created the user in DB in signIn.
-            // We need the DB _id to be the token.sub.
 
             if (account?.provider === "google") {
                 await connectToDatabase();

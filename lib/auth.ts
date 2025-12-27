@@ -18,6 +18,48 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+                // OTP Login Flow
+                if (credentials?.email && credentials?.otp) {
+                    await connectToDatabase();
+                    // Import VerificationCode dynamically to avoid circular dependecies if any
+                    // But we can import at top level usually. 
+                    // Let's use the model directly if possible or the one imported.
+                    const VerificationCode = (await import("@/lib/models/VerificationCode")).default;
+
+                    const record = await VerificationCode.findOne({
+                        email: credentials.email,
+                        code: credentials.otp
+                    });
+
+                    if (!record || new Date() > record.expiresAt) {
+                        throw new Error("Invalid or expired OTP");
+                    }
+
+                    // Valid OTP. Find or Create User.
+                    // Actually, verifyOTP action should have handled creation OR we do it here?
+                    // Doing it here covers the actual signIn event.
+
+                    let user = await User.findOne({ email: credentials.email });
+                    if (!user) {
+                        user = await User.create({
+                            name: credentials.email.split("@")[0],
+                            email: credentials.email,
+                            image: "",
+                        });
+                    }
+
+                    // Delete code after use
+                    await VerificationCode.deleteOne({ _id: record._id });
+
+                    return {
+                        id: user._id.toString(),
+                        name: user.name,
+                        email: user.email,
+                        image: user.image,
+                    };
+                }
+
+                // Password Login Flow
                 if (!credentials?.email || !credentials?.password) {
                     throw new Error("Invalid credentials");
                 }

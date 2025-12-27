@@ -12,9 +12,11 @@ export interface UserWorklog extends IWorklog {
     issueProjectId: string;
 }
 
+import { redirect } from "next/navigation";
+
 export async function getUserWorklogs(): Promise<UserWorklog[]> {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) throw new Error("Unauthorized");
+    if (!session?.user?.id) redirect("/login");
 
     await connectToDatabase();
 

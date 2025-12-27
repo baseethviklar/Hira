@@ -45,6 +45,14 @@ const formSchema = z.object({
     startDate: z.date().optional(),
     endDate: z.date().optional(),
     originalEstimate: z.string().optional(),
+}).refine((data) => {
+    if (data.startDate && data.endDate) {
+        return data.endDate >= data.startDate;
+    }
+    return true;
+}, {
+    message: "End date cannot be before start date",
+    path: ["endDate"],
 });
 
 interface EditIssueDialogProps {
@@ -221,9 +229,10 @@ export function EditIssueDialog({ issue, open, onOpenChange }: EditIssueDialogPr
                                                         mode="single"
                                                         selected={field.value}
                                                         onSelect={field.onChange}
-                                                        disabled={(date: Date) =>
-                                                            date < new Date("1900-01-01")
-                                                        }
+                                                        disabled={(date: Date) => {
+                                                            const endDate = form.getValues("endDate");
+                                                            return date < new Date("1900-01-01") || (endDate ? date > endDate : false);
+                                                        }}
                                                         initialFocus
                                                     />
                                                 </PopoverContent>
@@ -262,9 +271,10 @@ export function EditIssueDialog({ issue, open, onOpenChange }: EditIssueDialogPr
                                                         mode="single"
                                                         selected={field.value}
                                                         onSelect={field.onChange}
-                                                        disabled={(date: Date) =>
-                                                            date < new Date("1900-01-01")
-                                                        }
+                                                        disabled={(date: Date) => {
+                                                            const startDate = form.getValues("startDate");
+                                                            return date < new Date("1900-01-01") || (startDate ? date < startDate : false);
+                                                        }}
                                                         initialFocus
                                                     />
                                                 </PopoverContent>

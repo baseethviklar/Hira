@@ -23,6 +23,7 @@ export const authOptions: NextAuthOptions = {
                 if (credentials?.email && (credentials as any)?.otp) {
                     await connectToDatabase();
                     // Import VerificationCode dynamically to avoid circular dependecies if any
+                    // Vercel build fix: explicitly handling types
                     // But we can import at top level usually. 
                     // Let's use the model directly if possible or the one imported.
                     const VerificationCode = (await import("@/lib/models/VerificationCode")).default;

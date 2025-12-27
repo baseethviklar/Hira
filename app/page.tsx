@@ -4,11 +4,5 @@ import { redirect } from "next/navigation";
 import { LandingPage } from "@/components/landing-page";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
-
-  if (session) {
-    redirect("/projects");
-  }
-
   return <LandingPage />;
 }

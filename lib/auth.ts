@@ -16,6 +16,7 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
+                otp: { label: "OTP", type: "text" }
             },
             async authorize(credentials) {
                 // OTP Login Flow

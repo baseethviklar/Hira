@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials) {
                 // OTP Login Flow
-                if (credentials?.email && credentials?.otp) {
+                if (credentials?.email && (credentials as any)?.otp) {
                     await connectToDatabase();
                     // Import VerificationCode dynamically to avoid circular dependecies if any
                     // But we can import at top level usually. 

@@ -86,6 +86,9 @@ export async function updateIssueDetails(issueId: string, data: {
     description?: string;
     priority: string;
     type: string;
+    startDate?: Date;
+    endDate?: Date;
+    originalEstimate?: number;
 }) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) throw new Error("Unauthorized");
@@ -99,6 +102,16 @@ export async function updateIssueDetails(issueId: string, data: {
     issue.description = data.description;
     issue.priority = data.priority;
     issue.type = data.type;
+    issue.startDate = data.startDate;
+    issue.endDate = data.endDate;
+
+    if (data.originalEstimate !== undefined && data.originalEstimate !== issue.originalEstimate) {
+        issue.originalEstimate = data.originalEstimate;
+        // Optionally update remaining estimate if no work logged? 
+        // Or just let user manage it via log work. 
+        // User requested "edit original estimate". 
+        // Let's just update original. Simpler.
+    }
 
     await issue.save();
 

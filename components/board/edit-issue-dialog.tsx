@@ -28,16 +28,23 @@ import { updateIssueDetails, deleteIssue } from "@/lib/actions/issue";
 import { toast } from "sonner";
 import { IIssue } from "@/lib/models/Issue";
 import { useState } from "react";
-import { Trash2, Clock } from "lucide-react";
+import { Trash2, Clock, CalendarIcon } from "lucide-react";
 import { LogWorkDialog } from "./log-work-dialog";
-import { formatDuration } from "@/lib/format-time";
+import { formatDuration, parseDuration } from "@/lib/format-time";
 import { Progress } from "@/components/ui/progress";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
     description: z.string().optional(),
     priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
     type: z.enum(["TASK", "BUG", "STORY"]),
+    startDate: z.date().optional(),
+    endDate: z.date().optional(),
+    originalEstimate: z.string().optional(),
 });
 
 interface EditIssueDialogProps {
@@ -57,13 +64,21 @@ export function EditIssueDialog({ issue, open, onOpenChange }: EditIssueDialogPr
             description: issue.description || "",
             priority: issue.priority as "LOW" | "MEDIUM" | "HIGH",
             type: issue.type as "TASK" | "BUG" | "STORY",
+            startDate: issue.startDate ? new Date(issue.startDate) : undefined,
+            endDate: issue.endDate ? new Date(issue.endDate) : undefined,
+            originalEstimate: issue.originalEstimate ? formatDuration(issue.originalEstimate) : "",
         },
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
-            await updateIssueDetails(issue._id as unknown as string, values);
+            const estimateMinutes = values.originalEstimate ? parseDuration(values.originalEstimate) : undefined;
+
+            await updateIssueDetails(issue._id as unknown as string, {
+                ...values,
+                originalEstimate: estimateMinutes
+            });
             toast.success("Issue updated");
             onOpenChange(false);
         } catch (error) {
@@ -174,6 +189,105 @@ export function EditIssueDialog({ issue, open, onOpenChange }: EditIssueDialogPr
                                     )}
                                 />
                             </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Start Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date: Date) =>
+                                                            date < new Date("1900-01-01")
+                                                        }
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>End Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date: Date) =>
+                                                            date < new Date("1900-01-01")
+                                                        }
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <FormField
+                                control={form.control}
+                                name="originalEstimate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Original Estimate</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g. 2h 30m" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
                             {/* Time Tracking Section */}
                             <div className="space-y-2 border-t pt-4 mt-4">

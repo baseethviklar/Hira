@@ -158,7 +158,7 @@ export function LandingPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-950 text-white">
+        <div className="dark min-h-screen flex flex-col bg-slate-950 text-white">
             {/* Header */}
             <header className="px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -387,19 +387,21 @@ export function LandingPage() {
                         </svg>
                     </div>
 
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-20 bg-[#077d7d] text-white px-6 py-1.5 rounded-full text-sm font-bold shadow-lg border-4 border-slate-950 uppercase tracking-widest">
+                        Demo Video
+                    </div>
                     <div className="bg-white rounded-lg shadow-2xl overflow-hidden aspect-video relative z-10 border-4 border-white/10">
-                        {/* Video Placeholder */}
-                        <div className="absolute inset-0 bg-slate-100 flex items-center justify-center group cursor-pointer">
-                            <div className="text-center">
-                                <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                                    <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M8 5v14l11-7z" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-slate-900 font-bold text-lg">Watch Demo</h3>
-                                <p className="text-slate-500 text-sm">See Hira-lite in action</p>
-                            </div>
-                        </div>
+                        <video
+                            className="w-full h-full object-cover"
+                            controls
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                        >
+                            <source src="/demo.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                 </div>
             </main >

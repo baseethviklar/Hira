@@ -1,6 +1,6 @@
 # Hira Lite
 
-A personal Hira-like project management application built with Next.js 14, MongoDB, and Tailwind CSS.
+A personal Jira-like project management application built with Next.js 14, MongoDB, and Tailwind CSS.
 Designed for simplicity and speed.
 
 ## Features

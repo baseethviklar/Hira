@@ -35,7 +35,7 @@ const formSchema = z.object({
     description: z.string().optional(),
 });
 
-export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
+export function CreateProjectDialog({ spaceId, children }: { spaceId?: string, children?: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -67,9 +67,11 @@ export function CreateProjectDialog({ spaceId }: { spaceId?: string }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Create Project
-                </Button>
+                {children ? children : (
+                    <Button>
+                        <Plus className="mr-2 h-4 w-4" /> Create Project
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

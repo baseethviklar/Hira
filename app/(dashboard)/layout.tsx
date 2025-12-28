@@ -1,11 +1,18 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { getSpaces } from "@/lib/actions/space";
+import { getProjects } from "@/lib/actions/project";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const [spaces, projects] = await Promise.all([
+        getSpaces(),
+        getProjects()
+    ]);
+
     return (
         <div className="flex h-screen overflow-hidden">
             <div className="hidden md:flex w-64 flex-col border-r bg-background">
-                <Sidebar />
+                <Sidebar spaces={spaces} projects={projects} />
             </div>
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Header />
@@ -14,5 +21,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </main>
             </div>
         </div>
-    ); // Adjusted for better scrolling behavior
+    );
 }

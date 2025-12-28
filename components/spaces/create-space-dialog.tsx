@@ -33,7 +33,7 @@ const formSchema = z.object({
     description: z.string().optional(),
 });
 
-export function CreateSpaceDialog() {
+export function CreateSpaceDialog({ children }: { children?: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -53,6 +53,9 @@ export function CreateSpaceDialog() {
             toast.success("Space created");
             setOpen(false);
             form.reset();
+            // router.refresh(); // Server action usually handles this via revalidatePath, but client needs explicit refresh sometimes?
+            // createSpace does revalidatePath("/projects"). Sidebar might need refresh. Sidebar data comes from layout props (server fetched).
+            // So router.refresh() IS needed to re-run layout server components.
             router.refresh();
         } catch (error) {
             toast.error("Failed to create space");
@@ -64,9 +67,11 @@ export function CreateSpaceDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>
-                    <FolderPlus className="mr-2 h-4 w-4" /> Create Space
-                </Button>
+                {children ? children : (
+                    <Button>
+                        <FolderPlus className="mr-2 h-4 w-4" /> Create Space
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

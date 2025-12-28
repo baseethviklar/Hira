@@ -52,7 +52,19 @@ export async function deleteSpace(spaceId: string, deleteProjectsObj?: { deleteP
     if (!space) throw new Error("Space not found or unauthorized");
 
     if (deleteProjectsObj?.deleteProjects) {
-        // Option 1: Delete all projects in space
+        // Option 1: Delete all projects in space AND their issues
+
+        // Find all projects in this space
+        const projects = await Project.find({ spaceId }).select("_id");
+        const projectIds = projects.map((p: any) => p._id);
+
+        if (projectIds.length > 0) {
+            // Delete all issues associated with these projects
+            const Issue = (await import("@/lib/models/Issue")).default;
+            await Issue.deleteMany({ projectId: { $in: projectIds } });
+        }
+
+        // Now delete the projects
         await Project.deleteMany({ spaceId });
     } else {
         // Option 2: Move projects to root (Standalone)
@@ -61,6 +73,7 @@ export async function deleteSpace(spaceId: string, deleteProjectsObj?: { deleteP
 
     await Space.deleteOne({ _id: spaceId });
     revalidatePath("/projects");
+    revalidatePath("/workspace");
 }
 
 export async function updateSpace(spaceId: string, data: { name: string; description?: string }) {

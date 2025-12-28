@@ -105,6 +105,16 @@ export async function deleteProject(id: string) {
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     await connectToDatabase();
-    await Project.deleteOne({ _id: id, owner: session.user.id });
+
+    // Check ownership
+    const project = await Project.findOne({ _id: id, owner: session.user.id });
+    if (!project) throw new Error("Project not found or unauthorized");
+
+    // Cascade delete issues
+    const Issue = (await import("@/lib/models/Issue")).default;
+    await Issue.deleteMany({ projectId: id });
+
+    await Project.deleteOne({ _id: id });
     revalidatePath("/projects");
+    revalidatePath("/workspace");
 }

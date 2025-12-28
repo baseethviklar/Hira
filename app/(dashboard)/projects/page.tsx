@@ -17,7 +17,7 @@ export default async function ProjectsPage() {
         <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Workspaces</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Home</h1>
                     <p className="text-muted-foreground mt-1">Manage your spaces and projects.</p>
                 </div>
                 <div className="flex gap-2">
@@ -27,27 +27,31 @@ export default async function ProjectsPage() {
             </div>
 
             {/* Spaces Section */}
-            {spaces.length > 0 && (
-                <div className="space-y-4">
-                    <h2 className="text-xl font-semibold tracking-tight text-muted-foreground flex items-center">
-                        Your Spaces
-                    </h2>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {spaces.map((space: any) => {
-                            const projectCount = projects.filter((p: any) => p.spaceId === space._id).length;
-                            return (
-                                <SpaceCard key={space._id} space={space} projectCount={projectCount} />
-                            );
-                        })}
-                    </div>
-                    <Separator className="my-6" />
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold tracking-tight text-muted-foreground flex items-center">
+                    Spaces
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {spaces.map((space: any) => {
+                        const projectCount = projects.filter((p: any) => p.spaceId === space._id).length;
+                        return (
+                            <SpaceCard key={space._id} space={space} projectCount={projectCount} />
+                        );
+                    })}
+                    {spaces.length === 0 && (
+                        <div className="col-span-full text-center p-8 border border-dashed rounded-lg text-muted-foreground bg-accent/20">
+                            No Spaces found. Create one to get started.
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
+
+            <Separator className="my-2" />
 
             {/* Standalone Projects Section */}
             <div className="space-y-4">
                 <h2 className="text-xl font-semibold tracking-tight text-muted-foreground flex items-center">
-                    {spaces.length > 0 ? "Standalone Projects" : "Projects"}
+                    Projects
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {standaloneProjects.map((project: any) => (
@@ -55,7 +59,7 @@ export default async function ProjectsPage() {
                     ))}
                     {standaloneProjects.length === 0 && (
                         <div className="col-span-full text-center p-8 border border-dashed rounded-lg text-muted-foreground bg-accent/20">
-                            {spaces.length > 0 ? "No standalone projects." : "No projects found. Create one to get started."}
+                            No projects found. Create one to get started.
                         </div>
                     )}
                 </div>

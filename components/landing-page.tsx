@@ -173,10 +173,6 @@ export function LandingPage() {
                     </div>
                 </div>
                 <nav className="hidden md:flex gap-6 text-sm font-medium">
-                    <Link href="#" className="hover:text-blue-400">Features</Link>
-                    <Link href="#" className="hover:text-blue-400">Pricing</Link>
-                    <Link href="#" className="hover:text-blue-400">Enterprise</Link>
-                    <Link href="#" className="hover:text-blue-400">Resources</Link>
                 </nav>
                 <div className="flex items-center gap-4">
                     <Link href="/login">

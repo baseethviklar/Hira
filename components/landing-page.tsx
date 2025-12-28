@@ -345,7 +345,7 @@ export function LandingPage() {
                         <div className="flex flex-col gap-4">
                             <Button
                                 variant="outline"
-                                className="h-12 w-full bg-white/5 border-white/10 text-white hover:bg-white/10 font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
+                                className="h-12 w-full bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
                                 onClick={() => signIn("google", { callbackUrl: "/projects" })}
                             >
                                 <svg className="mr-2 h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">

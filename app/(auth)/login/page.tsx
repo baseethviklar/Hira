@@ -112,7 +112,7 @@ export default function LoginPage() {
                         <Button
                             type="button"
                             variant="outline"
-                            className="h-12 w-full bg-white/5 border-white/10 text-white hover:bg-white/10 font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
+                            className="h-12 w-full bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
                             onClick={() => signIn("google", { callbackUrl: "/projects" })}
                             disabled={isLoading}
                         >

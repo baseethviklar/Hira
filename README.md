@@ -1,6 +1,6 @@
 # Hira Lite
 
-A personal Hira-like project management application built with Next.js 14, MongoDB, and Tailwind CSS.
+A personal Jira-like Task management application only for personal use built with Next.js 14, MongoDB, and Tailwind CSS.
 Designed for simplicity and speed.
 
 ## Features
@@ -46,9 +46,5 @@ Designed for simplicity and speed.
 
 5. **Open http://localhost:3000**
 
-## Deployment to Vercel
-
-1. Push to GitHub.
-2. Import project in Vercel.
-3. Add Environment Variables (`MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`).
-4. Deploy.
+## Vercel Link:
+https://hira-div4.vercel.app/

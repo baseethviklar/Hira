@@ -37,6 +37,7 @@ export async function createIssue(data: {
     });
 
     revalidatePath(`/projects/${data.projectId}`);
+    revalidatePath("/workspace");
     return JSON.parse(JSON.stringify(issue));
 }
 
@@ -58,6 +59,7 @@ export async function updateIssueStatus(issueId: string, status: string, order: 
     await connectToDatabase();
     await Issue.updateOne({ _id: issueId }, { status, order });
     revalidatePath(`/projects/${projectId}`);
+    revalidatePath("/workspace");
 }
 
 export async function updateIssueOrder(items: { id: string; order: number; status: string }[], projectId: string) {
@@ -79,6 +81,7 @@ export async function updateIssueOrder(items: { id: string; order: number; statu
     }
 
     revalidatePath(`/projects/${projectId}`);
+    revalidatePath("/workspace");
 }
 
 export async function updateIssueDetails(issueId: string, data: {
@@ -115,6 +118,7 @@ export async function updateIssueDetails(issueId: string, data: {
     await issue.save();
 
     revalidatePath(`/projects/${issue.projectId}`);
+    revalidatePath("/workspace");
     return JSON.parse(JSON.stringify(issue));
 }
 
@@ -130,6 +134,7 @@ export async function deleteIssue(issueId: string) {
     await Issue.deleteOne({ _id: issueId });
 
     revalidatePath(`/projects/${issue.projectId}`);
+    revalidatePath("/workspace");
 }
 
 export async function getAssignedIssues() {
